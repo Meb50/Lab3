@@ -1,196 +1,189 @@
 #include <stdio.h>
 #include <string.h>
 
-#define MAX 100
+#define MAX 100 //maximum number of songs that can be stored in the catalogue
 
-// Structure to store song information
-struct Song
+
+struct Song //stores information about a song, including the band/singer, song name, price, and release year
 {
-    char singer[100];
-    char name[100];
+    char singer[100], name[100];
     float price;
     int year;
 };
 
-// Function declarations
-int enterData(struct Song songs[], int count);
-void saveData(struct Song songs[], int count);
-int readData(struct Song songs[]);
-void sortSongs(struct Song songs[], int count);
-void printCatalogue(struct Song songs[], int count);
+int enterData(struct Song songs[], int count); //initialising the enterData function
+void saveData(struct Song songs[], int count); //initialising the saveData function
+int readData(struct Song songs[]); //initialising the readData function
+void sort(struct Song songs[], int count); //initialising the sort function
+void print(struct Song songs[], int count); //initialising the print function
 
 
-int main()
+int main() //main function that runs the program
 {
-    struct Song songs[MAX];
-    int count = 0;
-    int choice;
+    struct Song songs[MAX]; //array of Song structures to store the song information
+    int count = 0; //counter to keep track of the number of songs entered
+    int choice; //variable to store the user's menu choice
 
-    // Display menu until user chooses to exit
-    do
+
+    do //do-while loop to repeatedly display the menu and process user input
     {
-        printf("\n--- SONG CATALOGUE ---\n");
+        printf("\n--- SONG CATALOGUE ---\n"); //displaying the menu options to the user
         printf("1. Enter data\n");
-        printf("2. Save data to file\n");
-        printf("3. Read data from file\n");
-        printf("4. Print catalogue\n");
+        printf("2. Save data\n");
+        printf("3. Read data\n");
+        printf("4. Print info\n");
         printf("5. Exit\n");
-        printf("Enter your choice: ");
+        printf("USER INPUT: \n");
 
-        scanf("%d", &choice);
-        getchar();
+        scanf("%d", &choice); //reading the user's menu choice
+        getchar(); 
 
-        // Select menu option
-        switch(choice)
+        switch(choice) //switch statement to process the user's menu choice
         {
-            case 1:
+            case 1: //if the user chooses to enter data, call the enterData function and update the count variable
                 count = enterData(songs, count);
                 break;
 
             case 2:
-                saveData(songs, count);
+                saveData(songs, count); //call the saveData function to save the song information to a file
                 break;
 
             case 3:
-                count = readData(songs);
+                count = readData(songs); //call the readData function to read the song information from a file and update the count variable
                 break;
 
             case 4:
-                sortSongs(songs, count);
-                printCatalogue(songs, count);
+                sort(songs, count); //call the sort function to sort the song information by release year
+                print(songs, count); //call the print function to display the song information on the screen
                 break;
 
             case 5:
-                printf("Goodbye!\n");
+                printf("Exitting program\n"); //if the user chooses to exit, display a message and break out of the loop
                 break;
 
             default:
-                printf("Invalid choice.\n");
+                printf("Invalid choice.\n"); //if the user enters an invalid choice, display an error message
         }
 
-    } while(choice != 5);
+    } while(choice != 5); //continue looping until the user chooses to exit
 
-    return 0;
+    return 0; //return 0 to indicate successful program execution
 }
 
 
-// Function to enter song information
-int enterData(struct Song songs[], int count)
-{
+
+int enterData(struct Song songs[], int count) //function to allow the user to enter song information
+{ 
     int number;
 
-    printf("How many songs do you want to enter? ");
-    scanf("%d", &number);
-    getchar();
+    printf("How many songs do you want to enter? "); //prompt the user to enter the number of songs they want to input
+    scanf("%d", &number); 
+    getchar(); 
 
-    for(int i = 0; i < number && count < MAX; i++)
+    for(int i = 0; i < number && count < MAX; i++) //loop to allow the user to enter information for the specified number of songs, up to the maximum limit
     {
-        printf("\nEnter band/singer: ");
-        fgets(songs[count].singer, 100, stdin);
-        songs[count].singer[strcspn(songs[count].singer, "\n")] = '\0';
+        printf("\nEnter band/singer: "); //prompt the user to enter the band/singer name
+        fgets(songs[count].singer, 100, stdin); //read the band/singer name from the user input
+        songs[count].singer[strcspn(songs[count].singer, "\n")] = '\0'; //remove the newline character from the end of the string
 
         printf("Enter song name: ");
-        fgets(songs[count].name, 100, stdin);
-        songs[count].name[strcspn(songs[count].name, "\n")] = '\0';
+        fgets(songs[count].name, 100, stdin); //read the song name from the user input
+        songs[count].name[strcspn(songs[count].name, "\n")] = '\0'; //remove the newline character from the end of the string
 
-        printf("Enter price: ");
-        scanf("%f", &songs[count].price);
+        printf("Enter price: "); //prompt the user to enter the price of the song
+        scanf("%f", &songs[count].price); //read the price from the user input
 
-        printf("Enter release year: ");
-        scanf("%d", &songs[count].year);
-        getchar();
+        printf("Enter release year: "); //prompt the user to enter the release year of the song
+        scanf("%d", &songs[count].year); //read the release year from the user input
+        getchar(); //consume the newline character left in the input buffer
 
-        count++;
+        count++; //increment the count variable to keep track of the number of songs entered
     }
 
-    return count;
+    return count; //return the updated count variable to the main function
 }
 
 
-// Function to save songs to a file
-void saveData(struct Song songs[], int count)
+void saveData(struct Song songs[], int count) //function to save the song information to a file
 {
-    FILE *file;
+    FILE *file; //pointer to a file structure to handle file operations
 
-    file = fopen("catalogue.txt", "w");
+    file = fopen("catalogue.txt", "a"); //open the file "catalogue.txt" in append mode to add new song information without overwriting existing data
 
-    if(file == NULL)
+    if(file == 0) //check if the file was opened successfully
     {
         printf("Error opening file.\n");
         return;
     }
 
-    for(int i = 0; i < count; i++)
+    for(int i = 0; i < count; i++) //loop to write the song information to the file for each song in the array
     {
-        fprintf(file, "%s|%s|%.2f|%d\n",
+        fprintf(file, "%s|%s|%.2f|%d\n", //write the band/singer name, song name, price and release year to the file in a specific format
         songs[i].singer,
         songs[i].name,
         songs[i].price,
-        songs[i].year);
+        songs[i].year); 
     }
 
-    fclose(file);
+    fclose(file); //close the file after writing the song information
 
     printf("Songs saved successfully.\n");
 }
 
 
-// Function to read songs from a file
-int readData(struct Song songs[])
+int readData(struct Song songs[]) //function to read the song information from a file
 {
-    FILE *file;
-    int count = 0;
+    FILE *file; //pointer to a file structure to handle file operations
+    int count = 0; //counter to keep track of the number of songs read from the file
 
-    file = fopen("catalogue.txt", "r");
+    file = fopen("catalogue.txt", "r"); //open the file "catalogue.txt" in read mode to retrieve the song information
 
-    if(file == NULL)
+    if(file == 0) //check if the file was opened successfully
     {
         printf("File could not be opened.\n");
         return 0;
     }
 
-    while(count < MAX &&
-    fscanf(file, "%99[^|]|%99[^|]|%f|%d\n",
+    while(count < MAX && //fscanf() reads the song information from the file and stores it in the corresponding fields of the Song structure
+    fscanf(file, "%99[^|]|%99[^|]|%f|%d\n", //
     songs[count].singer,
     songs[count].name,
     &songs[count].price,
-    &songs[count].year) == 4)
+    &songs[count].year) == 4) //check if fscanf() successfully read all four fields of the Song structure
     {
-        count++;
+        count++; //increment the count variable to keep track of the number of songs read from the file
     }
 
-    fclose(file);
+    fclose(file); //close the file after reading the song information
 
-    printf("%d songs read from file.\n", count);
+    printf("%d songs read from file.\n", count); //display the number of songs read from the file to the user
 
     return count;
 }
 
 
-// Function to sort songs by release year
-void sortSongs(struct Song songs[], int count)
+void sort(struct Song songs[], int count) //function to sort the song information by release year using bubble sort algorithm
 {
-    struct Song temp;
+    struct Song temp; //temporary variable to hold a Song structure during the swapping process
 
-    for(int i = 0; i < count - 1; i++)
+    for(int i = 0; i < count - 1; i++)  //outer loop to iterate through the array of songs
     {
-        for(int j = 0; j < count - i - 1; j++)
+        for(int j = 0; j < count - i - 1; j++) //inner loop to compare adjacent songs and swap them if they are in the wrong order
         {
-            if(songs[j].year > songs[j + 1].year)
+            if(songs[j].year > songs[j + 1].year) //compare the release year of the current song with the next song
             {
-                temp = songs[j];
-                songs[j] = songs[j + 1];
-                songs[j + 1] = temp;
-            }
+                temp = songs[j]; //swap the two songs if they are in the wrong order
+                songs[j] = songs[j + 1]; //swap the current song with the next song
+                songs[j + 1] = temp; //swap the next song with the temporary variable to complete the swap
+            } 
         }
     }
 }
 
 
-// Function to print the catalogue
-void printCatalogue(struct Song songs[], int count)
+void print(struct Song songs[], int count) //function to display the song information on the screen
 {
-    for(int i = 0; i < count; i++)
+    for(int i = 0; i < count; i++) //loop to iterate through the array of songs and print the information for each song
     {
         printf("\nName of Band: %s\n", songs[i].singer);
         printf("Name of Song: %s\n", songs[i].name);
@@ -199,12 +192,9 @@ void printCatalogue(struct Song songs[], int count)
     }
 }
 
-The Song Catalogue program is written in C and allows the user to enter, save, retrieve, sort and display information about songs.
- At the beginning of the program, the stdio.h and string.h libraries are included to allow the use of input, output and string functions. A constant called MAX is set to 100, which limits the catalogue to 100 songs.
- A structure called Song is created to store four pieces of information about each song: the band or singer's name, the song title, the price and the release year. An array of these structures is then created in the main function to store multiple songs.
-  The program uses a do-while loop to repeatedly display a menu containing five options, allowing the user to enter data, save data to a file, read data from a file, print the catalogue or exit the program. A switch statement is used to identify the option selected by the user and call the appropriate function. 
-  The enterData() function allows the user to input the band or singer, song name, price and release year using fgets() and scanf(). The information is stored in the song array, and a counter is increased each time a new song is entered. The saveData() function uses fopen() to open a file called catalogue.txt in write mode and fprintf() to save the song information.
-   Once all the songs have been saved, fclose() closes the file.
-   The readData() function opens the same file in read mode and uses fscanf() to retrieve the saved information and place it back into the song array. It also increases the counter each time a song is successfully read. The sortSongs() function uses a sorting method called bubble sort to arrange the songs from the oldest release year to the newest. 
-   It compares neighbouring songs and swaps them if they are in the wrong order, using a temporary structure to hold information during the swap. Finally, the printCatalogue() function uses a for loop to display each song's information on the screen, including the band or singer, song title, price and release year.
-    Overall, the program uses structures, arrays, functions, loops, conditional statements and file handling to create a simple song catalogue that allows users to manage and organise song information.
+
+
+
+
+
+
